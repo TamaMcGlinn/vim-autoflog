@@ -9,7 +9,6 @@ Using [Plug](https://github.com/junegunn/vim-plug) add the following to your `.v
 ```
 Plug 'tpope/vim-fugitive'
 Plug 'rbong/vim-flog'
-Plug 'TamaMcGlinn/flog-menu'
 Plug 'TamaMcGlinn/vim-autoflog'
 ```
 
