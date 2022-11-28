@@ -52,6 +52,7 @@ class EventProcessor(pyinotify.ProcessEvent):
 
 NOTIFY_EVENTS = pyinotify.IN_CREATE | pyinotify.IN_ATTRIB | pyinotify.IN_CLOSE_WRITE | pyinotify.IN_DELETE | pyinotify.IN_DELETE_SELF | pyinotify.IN_MODIFY | pyinotify.IN_MOVE_SELF | pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO
 
+
 def process_generator(cls, method):
     def _method_name(_, __):
         update()
@@ -62,7 +63,8 @@ def process_generator(cls, method):
 # TODO test what happens when multiple neovim instances are up
 nvim = attach('socket', path=os.environ['NVIM'])
 
-@debounce(5)
+
+@debounce(4)
 def update():
     """ Give autoflog plugin in NeoVim a poke. """
     nvim.command(f"call autoflog#mark_flog_buffer_dirty({BUF_NR})")
