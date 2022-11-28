@@ -40,22 +40,17 @@ def debounce(wait_time):
 
 class EventProcessor(pyinotify.ProcessEvent):
     _methods = ["IN_CREATE",
-                "IN_OPEN",
-                "IN_ACCESS",
                 "IN_ATTRIB",
-                "IN_CLOSE_NOWRITE",
                 "IN_CLOSE_WRITE",
                 "IN_DELETE",
                 "IN_DELETE_SELF",
-                "IN_IGNORED",
                 "IN_MODIFY",
                 "IN_MOVE_SELF",
                 "IN_MOVED_FROM",
                 "IN_MOVED_TO",
-                "IN_Q_OVERFLOW",
-                "IN_UNMOUNT",
                 "default"]
 
+NOTIFY_EVENTS = pyinotify.IN_CREATE | pyinotify.IN_ATTRIB | pyinotify.IN_CLOSE_WRITE | pyinotify.IN_DELETE | pyinotify.IN_DELETE_SELF | pyinotify.IN_MODIFY | pyinotify.IN_MOVE_SELF | pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO
 
 def process_generator(cls, method):
     def _method_name(_, __):
@@ -80,5 +75,5 @@ watch_manager = pyinotify.WatchManager()
 event_notifier = pyinotify.Notifier(watch_manager, EventProcessor())
 
 for path in [WORK_DIR, GIT_DIR]:
-    watch_manager.add_watch(os.path.abspath(path), pyinotify.ALL_EVENTS)
+    watch_manager.add_watch(os.path.abspath(path), NOTIFY_EVENTS)
 event_notifier.loop()
