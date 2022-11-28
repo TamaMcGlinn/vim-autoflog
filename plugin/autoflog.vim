@@ -1,4 +1,5 @@
 let g:autoflog_dirty_buffers = []
+let g:autoflog_debug = v:false
 
 let s:script_dir=expand("<sfile>:p:h")
 let g:autoflog_exec = s:script_dir . "/../bin/autoflog"

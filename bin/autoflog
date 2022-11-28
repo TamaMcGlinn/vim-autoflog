@@ -9,7 +9,7 @@ from pynvim import attach
 WORK_DIR = sys.argv[1]
 GIT_DIR = sys.argv[2]
 BUF_NR = sys.argv[3]
-print(f"Listening for changes in working directory {WORK_DIR},"
+print(f"Listening for changes in working directory {WORK_DIR} and "
       f"git directory {GIT_DIR}, tracked by buffer {BUF_NR}")
 
 # copied from https://github.com/salesforce/decorator-operations

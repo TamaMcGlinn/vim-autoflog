@@ -15,6 +15,9 @@ endfunction
 function! autoflog#mark_flog_buffer_dirty(bufnr) abort
   let buf_index = index(g:autoflog_dirty_buffers, a:bufnr)
   if buf_index == -1
+    if g:autoflog_debug
+      echom "Buffer " . a:bufnr . " was marked dirty."
+    endif
     call add(g:autoflog_dirty_buffers, a:bufnr)
   endif
   call autoflog#check_buffers()
@@ -31,6 +34,25 @@ function! autoflog#window_is_empty() abort
   endif
 endfunction
 
+function! s:OnEvent(job_id, data, event) dict
+  if a:event == 'stdout'
+    let str = self.shell.' stdout: '.join(a:data)
+  elseif a:event == 'stderr'
+    let str = self.shell.' stderr: '.join(a:data)
+  else
+    let str = self.shell.' exited'
+  endif
+  if g:autoflog_debug
+    echom str
+  endif
+endfunction
+
+let s:callbacks = {
+\ 'on_stdout': function('s:OnEvent'),
+\ 'on_stderr': function('s:OnEvent'),
+\ 'on_exit': function('s:OnEvent')
+\ }
+
 function! autoflog#open_flog() abort
   let l:opencmd=''
   if autoflog#window_is_empty()
@@ -41,9 +63,11 @@ function! autoflog#open_flog() abort
   call flogmenu#open_git_log(l:opencmd)
   let work_dir = flog#get_initial_workdir()
   let git_dir = flog#get_fugitive_git_dir()
-  let b:autoflog_job = jobstart([g:autoflog_exec, l:work_dir, l:git_dir, bufnr()])
+  let b:autoflog_job = jobstart([g:autoflog_exec, l:work_dir, l:git_dir, bufnr()], extend({'shell': 'shell 1'}, s:callbacks))
   autocmd BufLeave <buffer> call autoflog#schedule_stop_listening()
-  echom "Started autoflog in buffer " . bufnr() . " with job " . b:autoflog_job
+  if g:autoflog_debug
+    echom "Started autoflog in buffer " . bufnr() . " with job " . b:autoflog_job
+  endif
 endfunction
 
 " BufDelete should work but doesn't, so instead we use BufLeave
@@ -51,14 +75,20 @@ endfunction
 " whether the buffer still exists
 function! autoflog#schedule_stop_listening() abort
   let jobstop_cmd = "call autoflog#stop_listening(" . bufnr() . ", " . b:autoflog_job . ")"
-  echom "Scheduled stop for buffer " . bufnr() . " job " . b:autoflog_job . " with cmd: " . l:jobstop_cmd
+  if g:autoflog_debug
+    echom "Scheduled stop for buffer " . bufnr() . " job " . b:autoflog_job . " with cmd: " . l:jobstop_cmd
+  endif
   call timer_start(100, {-> execute(l:jobstop_cmd, "")})
 endfunction
 
 function! autoflog#stop_listening(bufnr, jobnr) abort
-  echom "Might stop autoflog for buffer " . a:bufnr
+  if g:autoflog_debug
+    echom "Might stop autoflog for buffer " . a:bufnr
+  endif
   if !bufexists(a:bufnr)
-    echom "Stopping autoflog for buffer " . a:bufnr
+    if g:autoflog_debug
+      echom "Stopping autoflog for buffer " . a:bufnr
+    endif
     let buf_index = index(g:autoflog_dirty_buffers, a:bufnr)
     if buf_index >= 0
       call remove(g:autoflog_dirty_buffers, buf_index)
@@ -66,4 +96,3 @@ function! autoflog#stop_listening(bufnr, jobnr) abort
     call jobstop(a:jobnr)
   endif
 endfunction
-
