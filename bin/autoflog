@@ -65,8 +65,7 @@ def process_generator(cls, method):
 
 
 # TODO test what happens when multiple neovim instances are up
-nvim = attach('socket', path=os.environ['NVIM_LISTEN_ADDRESS'])
-
+nvim = attach('socket', path=os.environ['NVIM'])
 
 @debounce(5)
 def update():
