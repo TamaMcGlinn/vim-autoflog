@@ -60,7 +60,7 @@ function! autoflog#open_flog() abort
     " keybindings to open & orient a split first and then have flog in that
     let l:opencmd='-open-cmd=edit'
   endif
-  if exists('flogmenu#open_git_log')
+  if exists('*flogmenu#open_git_log')
     call flogmenu#open_git_log(l:opencmd)
   else
     execute ':Flog -all ' . l:opencmd
