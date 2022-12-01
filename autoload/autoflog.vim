@@ -86,9 +86,6 @@ function! autoflog#schedule_stop_listening() abort
 endfunction
 
 function! autoflog#stop_listening(bufnr, jobnr) abort
-  if g:autoflog_debug
-    echom "Might stop autoflog for buffer " . a:bufnr
-  endif
   if !bufexists(a:bufnr)
     if g:autoflog_debug
       echom "Stopping autoflog for buffer " . a:bufnr
