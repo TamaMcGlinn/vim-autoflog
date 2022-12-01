@@ -1,8 +1,18 @@
-# AutoFlog
+AutoFlog
+========
 
 Autoflog makes [flog](https://github.com/rbong/vim-flog) automatically update when any git operation is done to the corresponding repo, whether inside vim or outside.
 
-## Installation
+Installation
+------------
+
+### Pre-requisites
+
+```
+pip3 install pyinotify
+```
+
+### Vim config
 
 Using [Plug](https://github.com/junegunn/vim-plug) add the following to your `.vimrc`:
 
