@@ -38,7 +38,7 @@ function! s:OnEvent(job_id, data, event) dict
   if a:event == 'stdout'
     let str = self.shell.' stdout: '.join(a:data)
   elseif a:event == 'stderr'
-    let str = self.shell.' stderr: '.join(a:data)
+    throw self.shell.' stderr: '.join(a:data)
   else
     let str = self.shell.' exited'
   endif
