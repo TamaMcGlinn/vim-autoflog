@@ -34,25 +34,6 @@ function! autoflog#window_is_empty() abort
   endif
 endfunction
 
-function! s:OnEvent(job_id, data, event) dict
-  if a:event == 'stdout'
-    let str = 'stdout: '.join(a:data)
-  elseif a:event == 'stderr'
-    throw 'stderr: '.join(a:data)
-  else
-    let str = self.shell.' exited'
-  endif
-  if g:autoflog_debug
-    echom str
-  endif
-endfunction
-
-let s:callbacks = {
-\ 'on_stdout': function('s:OnEvent'),
-\ 'on_stderr': function('s:OnEvent'),
-\ 'on_exit': function('s:OnEvent')
-\ }
-
 function! autoflog#open_flog() abort
   let l:opencmd=''
   if autoflog#window_is_empty()
@@ -67,7 +48,7 @@ function! autoflog#open_flog() abort
   endif
   let work_dir = flog#get_initial_workdir()
   let git_dir = flog#get_fugitive_git_dir()
-  let b:autoflog_job = jobstart([g:autoflog_exec, l:work_dir, l:git_dir, bufnr()], extend({'shell': 'shell 1'}, s:callbacks))
+  let b:autoflog_job = jobstart([g:autoflog_exec, l:work_dir, l:git_dir, bufnr()], {})
   autocmd BufLeave <buffer> call autoflog#schedule_stop_listening()
   if g:autoflog_debug
     echom "Started autoflog in buffer " . bufnr() . " with job " . b:autoflog_job
