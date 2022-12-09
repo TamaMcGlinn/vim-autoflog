@@ -47,15 +47,20 @@ class EventProcessor(pyinotify.ProcessEvent):
                 "IN_MODIFY",
                 "IN_MOVE_SELF",
                 "IN_MOVED_FROM",
-                "IN_MOVED_TO",
-                "default"]
+                "IN_MOVED_TO"]
 
 NOTIFY_EVENTS = pyinotify.IN_CREATE | pyinotify.IN_ATTRIB | pyinotify.IN_CLOSE_WRITE | pyinotify.IN_DELETE | pyinotify.IN_DELETE_SELF | pyinotify.IN_MODIFY | pyinotify.IN_MOVE_SELF | pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO
 
 
 def process_generator(cls, method):
-    def _method_name(_, __):
-        update()
+    def _method_name(self, event):
+        # print("Method name: process_{}()\n"
+        #                "Path name: {}\n"
+        #                "Event Name: {}\n".format(method, event.pathname, event.maskname))
+        if not str(event.pathname).endswith("/index.lock"):
+            update()
+        # else:
+        #     print("Ignoring event because it is the git index.lock file")
     _method_name.__name__ = f"process_{method}"
     setattr(cls, _method_name.__name__, _method_name)
 
@@ -64,9 +69,14 @@ def process_generator(cls, method):
 nvim = attach('socket', path=os.environ['NVIM'])
 
 
-@debounce(4)
+# change_id = 0
+
+@debounce(1)
 def update():
     """ Give autoflog plugin in NeoVim a poke. """
+    # global change_id
+    # change_id += 1
+    # print(f"Change {change_id}")
     nvim.command(f"call autoflog#mark_flog_buffer_dirty({BUF_NR})")
 
 
