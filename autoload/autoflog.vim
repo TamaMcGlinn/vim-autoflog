@@ -36,9 +36,9 @@ endfunction
 
 function! s:OnEvent(job_id, data, event) dict
   if a:event == 'stdout'
-    let str = self.shell.' stdout: '.join(a:data)
+    let str = 'stdout: '.join(a:data)
   elseif a:event == 'stderr'
-    throw self.shell.' stderr: '.join(a:data)
+    throw 'stderr: '.join(a:data)
   else
     let str = self.shell.' exited'
   endif
@@ -79,9 +79,6 @@ endfunction
 " whether the buffer still exists
 function! autoflog#schedule_stop_listening() abort
   let jobstop_cmd = "call autoflog#stop_listening(" . bufnr() . ", " . b:autoflog_job . ")"
-  if g:autoflog_debug
-    echom "Scheduled stop for buffer " . bufnr() . " job " . b:autoflog_job . " with cmd: " . l:jobstop_cmd
-  endif
   call timer_start(100, {-> execute(l:jobstop_cmd, "")})
 endfunction
 
