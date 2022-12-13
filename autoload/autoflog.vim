@@ -1,6 +1,16 @@
+function! autoflog#on_same_commit() abort
+  let l:current_commit = systemlist("git rev-parse HEAD")[0]
+  let l:result = l:current_commit ==# get(b:, "autoflog_current_commit", "")
+  let b:autoflog_current_commit = l:current_commit
+  return l:result
+endfunction
+
 function! autoflog#update() abort
   if &filetype == 'floggraph'
-    call flog#populate_graph_buffer()
+    let b:flog_status_summary = flog#get_status_summary()
+    if !autoflog#on_same_commit()
+      call flog#populate_graph_buffer()
+    endif
   endif
 endfunction
 
@@ -46,6 +56,7 @@ function! autoflog#open_flog() abort
   else
     execute ':Flog -all ' . l:opencmd
   endif
+  call autoflog#on_same_commit() " to populate b:autoflog_current_commit
   let work_dir = flog#get_initial_workdir()
   let git_dir = flog#get_fugitive_git_dir()
   let b:autoflog_job = jobstart([g:autoflog_exec, l:work_dir, l:git_dir, bufnr()], {})
