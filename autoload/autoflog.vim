@@ -1,6 +1,10 @@
 function! autoflog#on_same_commit() abort
   let l:current_commit = systemlist("git rev-parse HEAD")[0]
   let l:result = l:current_commit ==# get(b:, "autoflog_current_commit", "")
+  if g:autoflog_debug
+    echom "Was on " . b:autoflog_current_commit
+    echom "Now on " . l:current_commit
+  endif
   let b:autoflog_current_commit = l:current_commit
   return l:result
 endfunction
