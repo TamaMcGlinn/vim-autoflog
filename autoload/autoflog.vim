@@ -13,9 +13,10 @@ endfunction
 
 function! autoflog#update() abort
   if &filetype == 'floggraph'
-    let b:flog_status_summary = flog#get_status_summary()
-    if !autoflog#on_same_commit()
-      call flog#populate_graph_buffer()
+    if autoflog#on_same_commit()
+      call flog#floggraph#buf#UpdateStatus()
+    else
+      call flog#floggraph#buf#Update()
     endif
   endif
 endfunction
@@ -63,8 +64,8 @@ function! autoflog#open_flog() abort
     execute ':Flog -all ' . l:opencmd
   endif
   call autoflog#on_same_commit() " to populate b:autoflog_current_commit
-  let work_dir = flog#get_initial_workdir()
-  let git_dir = flog#get_fugitive_git_dir()
+  let work_dir = flog#state#GetWorkdir(flog#state#GetBufState())
+  let git_dir = FugitiveGitDir()
   let b:autoflog_job = jobstart([g:autoflog_exec, l:work_dir, l:git_dir, bufnr()], {})
   autocmd BufLeave <buffer> call autoflog#schedule_stop_listening()
   if g:autoflog_debug
