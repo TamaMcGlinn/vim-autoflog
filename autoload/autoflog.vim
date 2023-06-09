@@ -1,5 +1,5 @@
 function! autoflog#on_same_commit() abort
-  let l:current_commit = systemlist("git rev-parse HEAD")[0]
+  let l:current_commit = systemlist(flog#fugitive#GetGitCommand() . " rev-parse HEAD")[0]
   let l:result = l:current_commit ==# get(b:, "autoflog_current_commit", "")
   if g:autoflog_debug
     if exists("b:autoflog_current_commit")
