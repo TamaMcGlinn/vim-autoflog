@@ -1,5 +1,5 @@
 function! autoflog#on_same_commit() abort
-  let l:current_commit = systemlist("git rev-parse HEAD")[0]
+  let l:current_commit = systemlist(flog#fugitive#GetGitCommand() . " rev-parse HEAD")[0]
   let l:result = l:current_commit ==# get(b:, "autoflog_current_commit", "")
   if g:autoflog_debug
     if exists("b:autoflog_current_commit")
@@ -13,9 +13,10 @@ endfunction
 
 function! autoflog#update() abort
   if &filetype == 'floggraph'
-    let b:flog_status_summary = flog#get_status_summary()
-    if !autoflog#on_same_commit()
-      call flog#populate_graph_buffer()
+    if autoflog#on_same_commit()
+      call flog#floggraph#buf#UpdateStatus()
+    else
+      call flog#floggraph#buf#Update()
     endif
   endif
 endfunction
@@ -50,21 +51,21 @@ function! autoflog#window_is_empty() abort
   endif
 endfunction
 
-function! autoflog#open_flog() abort
-  let l:opencmd=''
+function! autoflog#open_flog(args) abort
+  let l:extra_args=' '.join(a:args)
   if autoflog#window_is_empty()
     " for an empty window, replace it; this is so you can use familiar
     " keybindings to open & orient a split first and then have flog in that
-    let l:opencmd='-open-cmd=edit'
+    let l:extra_args=l:extra_args . ' ' . '-open-cmd=edit'
   endif
-  if exists('*flogmenu#open_git_log')
-    call flogmenu#open_git_log(l:opencmd)
-  else
-    execute ':Flog -all ' . l:opencmd
-  endif
+  " if exists('*flogmenu#open_git_log')
+  "   call flogmenu#open_git_log(l:extra_args)
+  " else
+    execute ':Flog -all ' . l:extra_args
+  " endif
   call autoflog#on_same_commit() " to populate b:autoflog_current_commit
-  let work_dir = flog#get_initial_workdir()
-  let git_dir = flog#get_fugitive_git_dir()
+  let work_dir = flog#state#GetWorkdir(flog#state#GetBufState())
+  let git_dir = FugitiveGitDir()
   let b:autoflog_job = jobstart([g:autoflog_exec, l:work_dir, l:git_dir, bufnr()], {})
   autocmd BufLeave <buffer> call autoflog#schedule_stop_listening()
   if g:autoflog_debug

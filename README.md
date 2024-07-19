@@ -22,8 +22,11 @@ Plug 'rbong/vim-flog'
 Plug 'TamaMcGlinn/vim-autoflog'
 ```
 
-To launch flog, use `call autoflog#open_flog()` so that the autoflog script is scheduled in the background, which tells flog when to update. For example, you could add a mapping like this in your `.vimrc`:
+To launch flog, use `:AutoFlog` (or `:AutoFlogsplit`) instead of the Flog commands, so that the autoflog script is 
+scheduled in the background, which tells flog when to update that buffer.
+
+For example, you could add a mapping like this in your `.vimrc`:
 
 ```
-nnoremap <silent> <leader>gll :call autoflog#open_flog()<CR>
+nnoremap <silent> <leader>gll :AutoFlog<CR>
 ```
