@@ -51,18 +51,18 @@ function! autoflog#window_is_empty() abort
   endif
 endfunction
 
-function! autoflog#open_flog() abort
-  let l:opencmd=''
+function! autoflog#open_flog(args) abort
+  let l:extra_args=' '.join(a:args)
   if autoflog#window_is_empty()
     " for an empty window, replace it; this is so you can use familiar
     " keybindings to open & orient a split first and then have flog in that
-    let l:opencmd='-open-cmd=edit'
+    let l:extra_args=l:extra_args . ' ' . '-open-cmd=edit'
   endif
-  if exists('*flogmenu#open_git_log')
-    call flogmenu#open_git_log(l:opencmd)
-  else
-    execute ':Flog -all ' . l:opencmd
-  endif
+  " if exists('*flogmenu#open_git_log')
+  "   call flogmenu#open_git_log(l:extra_args)
+  " else
+    execute ':Flog -all ' . l:extra_args
+  " endif
   call autoflog#on_same_commit() " to populate b:autoflog_current_commit
   let work_dir = flog#state#GetWorkdir(flog#state#GetBufState())
   let git_dir = FugitiveGitDir()
